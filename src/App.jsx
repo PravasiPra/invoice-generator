@@ -2,24 +2,29 @@ import { useState } from "react";
 import { servicesData } from "./data/services";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import InvoicePreview from "./components/InvoicePreview";
 
 function App() {
 
   // Company Details (pre-filled)
   const [company, setCompany] = useState({
-    companyName: "ABC Lift Consultancy",
-    name: "Mr Consultant",
-    phone: "",
-    email: ""
-  });
+  companyName: "INFRA CONSULTANCY",
+  addressLine1: "A Wing, Flat No. 504, Shiv Kripa CHS Ltd,",
+  addressLine2: "Road, Dahisar East, Mumbai 400068",
+  proprietor: "Mr. Nikhil Patel",
+  phone: "",
+  email: "",
+  pan: "ANDPPXXXX"
+});
 
   // Client Details
   const [client, setClient] = useState({
-    clientName: "",
-    project: "",
-    invoiceNo: Date.now(),
-    date: new Date().toLocaleDateString()
-  });
+  quoteNo: "MAR/25-26/11",
+  date: new Date().toLocaleDateString(),
+  clientName: "",
+  clientAddress: "",
+  projectTitle: ""
+});
 
   // Services list added to invoice
   const [items, setItems] = useState([]);
@@ -27,6 +32,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState("");
 const [selectedService, setSelectedService] = useState("");
 const [price, setPrice] = useState("");
+const [qty,setQty] = useState(1);
 
 const addService = () => {
   if (!selectedCategory || !selectedService || !price) {
@@ -35,10 +41,11 @@ const addService = () => {
   }
 
   const newItem = {
-    category: selectedCategory,
-    service: selectedService,
-    price: price,
-  };
+  category: selectedCategory,
+  service: selectedService,
+  qty: Number(qty),
+  price: Number(price),
+};
 
   setItems([...items, newItem]);
 
@@ -49,7 +56,7 @@ const addService = () => {
 };
 
 const totalAmount = items.reduce(
-  (sum, item) => sum + Number(item.price),
+  (sum, item) => sum + item.price * item.qty,
   0
 );
 
@@ -133,6 +140,35 @@ Total Amount: ₹ ${totalAmount}`;
           setCompany({ ...company, email: e.target.value })
         }
       />
+
+      <input
+  className="w-full border p-2 mb-2 rounded"
+  placeholder="Address Line 1"
+  value={company.addressLine1}
+  onChange={(e)=>setCompany({...company,addressLine1:e.target.value})}
+/>
+
+<input
+  className="w-full border p-2 mb-2 rounded"
+  placeholder="Address Line 2"
+  value={company.addressLine2}
+  onChange={(e)=>setCompany({...company,addressLine2:e.target.value})}
+/>
+
+<input
+  className="w-full border p-2 mb-2 rounded"
+  placeholder="Proprietor Name"
+  value={company.proprietor}
+  onChange={(e)=>setCompany({...company,proprietor:e.target.value})}
+/>
+
+<input
+  className="w-full border p-2 rounded"
+  placeholder="PAN Number"
+  value={company.pan}
+  onChange={(e)=>setCompany({...company,pan:e.target.value})}
+/> 
+
     </div>
 {/* Client Details */}
 <div className="bg-white p-4 rounded shadow">
@@ -173,6 +209,41 @@ Total Amount: ₹ ${totalAmount}`;
       setClient({ ...client, date: e.target.value })
     }
   />
+
+<input
+  className="w-full border p-2 mb-2 rounded"
+  placeholder="Quote Number"
+  value={client.quoteNo}
+  onChange={(e)=>setClient({...client,quoteNo:e.target.value})}
+/>
+
+<input
+  type="date"
+  className="w-full border p-2 mb-2 rounded"
+  onChange={(e)=>setClient({...client,date:e.target.value})}
+/>
+
+<input
+  className="w-full border p-2 mb-2 rounded"
+  placeholder="Client Name"
+  value={client.clientName}
+  onChange={(e)=>setClient({...client,clientName:e.target.value})}
+/>
+
+<textarea
+  className="w-full border p-2 mb-2 rounded"
+  placeholder="Client Address"
+  value={client.clientAddress}
+  onChange={(e)=>setClient({...client,clientAddress:e.target.value})}
+/>
+
+<input
+  className="w-full border p-2 rounded"
+  placeholder="Project Title"
+  value={client.projectTitle}
+  onChange={(e)=>setClient({...client,projectTitle:e.target.value})}
+/>
+
 </div>
 
 {/* Services Section */}
@@ -206,6 +277,14 @@ Total Amount: ₹ ${totalAmount}`;
         <option key={srv}>{srv}</option>
       ))}
   </select>
+
+  <input
+  type="number"
+  placeholder="Quantity"
+  className="w-full border p-2 mb-2 rounded"
+  value={qty}
+  onChange={(e)=>setQty(e.target.value)}
+/>
 
   {/* Price Input */}
   <input
@@ -246,65 +325,6 @@ Total Amount: ₹ ${totalAmount}`;
   </div>
 )}
 
-{/* Invoice Preview */}
-{items.length > 0 && (
-  <div className="bg-white p-6 rounded shadow" id="invoice">
-    
-    <h2 className="text-xl font-bold mb-4 text-center">
-      INVOICE
-    </h2>
-
-    {/* Company + Client */}
-    <div className="flex justify-between mb-6 text-sm">
-      <div>
-        <p className="font-bold">{company.companyName}</p>
-        <p>{company.name}</p>
-        <p>{company.phone}</p>
-        <p>{company.email}</p>
-      </div>
-
-      <div className="text-right">
-        <p><b>Invoice No:</b> {client.invoiceNo}</p>
-        <p><b>Date:</b> {client.date}</p>
-        <p><b>Client:</b> {client.clientName}</p>
-        <p><b>Project:</b> {client.project}</p>
-      </div>
-    </div>
-
-    {/* Table */}
-    <table className="w-full border text-sm">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="border p-2 text-left">Service</th>
-          <th className="border p-2 text-left">Category</th>
-          <th className="border p-2 text-right">Amount</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {items.map((item, index) => (
-          <tr key={index}>
-            <td className="border p-2">{item.service}</td>
-            <td className="border p-2">{item.category}</td>
-            <td className="border p-2 text-right">₹ {item.price}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-
-    {/* Total */}
-    <div className="text-right mt-4">
-      <p className="text-lg font-bold">
-        Total: ₹ {totalAmount}
-      </p>
-    </div>
-
-    <p className="text-center text-xs mt-6 text-gray-500">
-      Thank you for your business
-    </p>
-  </div>
-)}
-
 {items.length > 0 && (
   <button
     onClick={generatePDF}
@@ -331,6 +351,17 @@ Total Amount: ₹ ${totalAmount}`;
       Share Email
     </button>
 
+  </div>
+)}
+
+{/* Invoice Preview */}
+{items.length > 0 && (
+  <div className="mt-10">
+    <InvoicePreview 
+      company={company}
+      client={client}
+      services={items}
+    />
   </div>
 )}
 

@@ -21,7 +21,11 @@ const InvoicePreview = ({ company, client, services }) => {
   const totalWords = numberToWords(total) + " Only";
 
   return (
-    <div id="invoice" className="bg-white p-10 text-black max-w-4xl mx-auto shadow-lg">
+    <div
+  id="invoice"
+  className="bg-white text-black shadow-lg mx-auto"
+  style={{ width: "794px", padding: "40px" }}
+>
 
       {/* HEADER */}
       <div className="text-center border-b pb-4">

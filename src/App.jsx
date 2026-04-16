@@ -66,9 +66,12 @@ const generatePDF = async () => {
 
   // make high quality canvas
   const canvas = await html2canvas(input, {
-    scale: 3,
-    useCORS: true,
-  });
+  scale: window.devicePixelRatio > 1 ? 2 : 3,
+  useCORS: true,
+  scrollX: 0,
+  scrollY: -window.scrollY,
+  windowWidth: input.scrollWidth,
+});
 
   const imgData = canvas.toDataURL("image/png");
 
@@ -77,7 +80,8 @@ const generatePDF = async () => {
   const pdfWidth = pdf.internal.pageSize.getWidth();
   const pdfHeight = pdf.internal.pageSize.getHeight();
 
-  const imgWidth = pdfWidth;
+  const margin = 0;
+const imgWidth = pdfWidth - margin * 2;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
   let position = 0;
@@ -92,11 +96,11 @@ const generatePDF = async () => {
     while (heightLeft > 0) {
       position = heightLeft - imgHeight;
       pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", margin, 0, imgWidth, imgHeight);
       heightLeft -= pdfHeight;
     }
   } else {
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    pdf.addImage(imgData, "PNG", margin, 0, imgWidth, imgHeight);
   }
 
   pdf.save(`Invoice_${client.clientName || "Client"}.pdf`);

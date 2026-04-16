@@ -62,19 +62,44 @@ const totalAmount = items.reduce(
 
 
 const generatePDF = async () => {
-  const invoice = document.getElementById("invoice");
+  const input = document.getElementById("invoice");
 
-  const canvas = await html2canvas(invoice);
+  // make high quality canvas
+  const canvas = await html2canvas(input, {
+    scale: 3,
+    useCORS: true,
+  });
+
   const imgData = canvas.toDataURL("image/png");
 
   const pdf = new jsPDF("p", "mm", "a4");
-  const imgWidth = 210;
-  const pageHeight = 295;
 
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  const imgWidth = pdfWidth;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-  pdf.save("invoice.pdf");
+  let position = 0;
+
+  // If invoice height is bigger than A4 → auto multiple pages
+  if (imgHeight > pdfHeight) {
+    let heightLeft = imgHeight;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+  } else {
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  }
+
+  pdf.save(`Invoice_${client.clientName || "Client"}.pdf`);
 };
 
 const shareWhatsApp = () => {

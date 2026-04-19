@@ -9,8 +9,8 @@ function App() {
   // Company Details (pre-filled)
   const [company, setCompany] = useState({
   companyName: "INFRA CONSULTANCY",
-  addressLine1: "A Wing, Flat No. 504, Shiv Kripa CHS Ltd,",
-  addressLine2: "Road, Dahisar East, Mumbai 400068",
+  addressLine1: "A Wing, Flat No. 504, Shiv Kripa CHS Ltd, Road, Dahisar East, Mumbai 400068",
+  //addressLine2: "",
   proprietor: "Mr. Nikhil Patel",
   phone: "",
   email: "",
@@ -29,22 +29,49 @@ function App() {
   // Services list added to invoice
   const [items, setItems] = useState([]);
 
+  const [notes, setNotes] = useState({
+  description: "1.5% Consultancy charges of total basic cost of lifts",
+  workOrder: "",
+  workDate: ""
+});
+
   const [selectedCategory, setSelectedCategory] = useState("");
 const [selectedService, setSelectedService] = useState("");
 const [price, setPrice] = useState("");
 const [qty,setQty] = useState(1);
 
-const addService = () => {
+{/*} const addService = () => {
   if (!selectedCategory || !selectedService || !price) {
     alert("Please select service and enter price");
     return;
-  }
+  } 
+
+   const addService = (service) => {
+  const formattedService = {
+    id: Date.now(), // important for delete
+    name: service.name,
+    type: service.type,
+    qty: Number(service.qty) || 1,
+    price: Number(service.price) || 0   
+  }; 
+
+  setServices(prev => [...prev, formattedService]);
+}; 
+
+  const removeService = (indexToRemove) => {
+  const updated = items.filter((_, index) => index !== indexToRemove);
+  setItems(updated);
+};
+
+const deleteService = (id) => {
+  setServices(prev => prev.filter(service => service.id !== id));
+};
 
   const newItem = {
   category: selectedCategory,
   service: selectedService,
   qty: Number(qty),
-  price: Number(price),
+  rate: Number(price)
 };
 
   setItems([...items, newItem]);
@@ -53,12 +80,46 @@ const addService = () => {
   setSelectedCategory("");
   setSelectedService("");
   setPrice("");
+  setQty(1);
+}; */}
+
+const addService = () => {
+  if (!selectedCategory || !selectedService || !price) {
+    alert("Please select service and enter price");
+    return;
+  }
+
+  const newItem = {
+    id: Date.now(),          // needed for delete
+    category: selectedCategory,
+    service: selectedService,
+    qty: Number(qty),
+    rate: Number(price)
+  };
+
+  setItems(prev => [...prev, newItem]);
+
+  // reset form
+  setSelectedCategory("");
+  setSelectedService("");
+  setPrice("");
+  setQty(1);
+};
+
+const deleteService = (id) => {
+  setItems(prev => prev.filter(item => item.id !== id));
 };
 
 const totalAmount = items.reduce(
-  (sum, item) => sum + item.price * item.qty,
+  (sum, item) => sum + item.rate * item.qty,
   0
 );
+
+{/* const total = services.reduce((sum, s) => {
+  const price = Number(s.price) || 0;
+  const qty = Number(s.qty) || 0;
+  return sum + price * qty;
+}, 0);  */}
 
 
 const generatePDF = async () => {
@@ -144,13 +205,13 @@ Total Amount: ₹ ${totalAmount}`;
       />
 
       <input
-        className="w-full border p-2 mb-2 rounded"
-        placeholder="Consultant Name"
-        value={company.name}
-        onChange={(e) =>
-          setCompany({ ...company, name: e.target.value })
-        }
-      />
+  className="w-full border p-2 mb-2 rounded"
+  placeholder="Consultant Name"
+  value={company.proprietor}
+  onChange={(e) =>
+    setCompany({ ...company, proprietor: e.target.value })
+  }
+/>
 
       <input
         className="w-full border p-2 mb-2 rounded"
@@ -177,12 +238,12 @@ Total Amount: ₹ ${totalAmount}`;
   onChange={(e)=>setCompany({...company,addressLine1:e.target.value})}
 />
 
-<input
+{/* <input
   className="w-full border p-2 mb-2 rounded"
   placeholder="Address Line 2"
   value={company.addressLine2}
   onChange={(e)=>setCompany({...company,addressLine2:e.target.value})}
-/>
+/> */}
 
 <input
   className="w-full border p-2 mb-2 rounded"
@@ -212,23 +273,23 @@ Total Amount: ₹ ${totalAmount}`;
     }
   />
 
-  <input
+  {/* <input
     className="w-full border p-2 mb-2 rounded"
     placeholder="Project Name"
     value={client.project}
     onChange={(e) =>
       setClient({ ...client, project: e.target.value })
     }
-  />
+  /> */}
 
-  <input
+  {/* <input
     className="w-full border p-2 mb-2 rounded"
     placeholder="Invoice Number"
     value={client.invoiceNo}
     onChange={(e) =>
       setClient({ ...client, invoiceNo: e.target.value })
     }
-  />
+  /> */}
 
   <input
     type="date"
@@ -246,18 +307,18 @@ Total Amount: ₹ ${totalAmount}`;
   onChange={(e)=>setClient({...client,quoteNo:e.target.value})}
 />
 
-<input
+{/* <input
   type="date"
   className="w-full border p-2 mb-2 rounded"
   onChange={(e)=>setClient({...client,date:e.target.value})}
-/>
+/> */}
 
-<input
+{/* <input
   className="w-full border p-2 mb-2 rounded"
   placeholder="Client Name"
   value={client.clientName}
   onChange={(e)=>setClient({...client,clientName:e.target.value})}
-/>
+/> */}
 
 <textarea
   className="w-full border p-2 mb-2 rounded"
@@ -331,6 +392,33 @@ Total Amount: ₹ ${totalAmount}`;
   >
     Add Service
   </button>
+
+{/* Consultancy Notes */}
+<div className="bg-white p-4 rounded shadow mt-6">
+  <h2 className="font-semibold mb-3">Consultancy Notes</h2>
+
+  <textarea
+    className="w-full border p-2 mb-2 rounded"
+    placeholder="Consultancy Description"
+    value={notes.description}
+    onChange={(e)=>setNotes({...notes,description:e.target.value})}
+  />
+
+  <input
+    className="w-full border p-2 mb-2 rounded"
+    placeholder="Work Order Number"
+    value={notes.workOrder}
+    onChange={(e)=>setNotes({...notes,workOrder:e.target.value})}
+  />
+
+  <input
+    type="date"
+    className="w-full border p-2 rounded"
+    value={notes.workDate}
+    onChange={(e)=>setNotes({...notes,workDate:e.target.value})}
+  />
+</div>
+
 </div>
 
 {/* Added Services List */}
@@ -338,19 +426,31 @@ Total Amount: ₹ ${totalAmount}`;
   <div className="bg-white p-4 rounded shadow">
     <h2 className="font-semibold mb-3">Added Services</h2>
 
-    {items.map((item, index) => (
-      <div
-        key={index}
-        className="flex justify-between border-b py-2 text-sm"
-      >
-        <div>
-          <p className="font-medium">{item.service}</p>
-          <p className="text-gray-500">{item.category}</p>
-        </div>
+    {items.map((item) => (
+  <div
+    key={item.id}
+    className="flex justify-between items-center border-b py-2 text-sm"
+  >
+    <div>
+      <p className="font-medium">{item.service}</p>
+      <p className="text-gray-500">{item.category}</p>
+      <p className="text-gray-400 text-xs">Qty: {item.qty}</p>
+    </div>
 
-        <p className="font-semibold">₹ {item.price}</p>
-      </div>
-    ))}
+    <div className="flex items-center gap-3">
+      <p className="font-semibold">
+        ₹ {(item.rate * item.qty).toLocaleString()}
+      </p>
+
+      <button
+        onClick={() => deleteService(item.id)}
+        className="bg-red-500 text-white px-3 py-1 rounded"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+))}
   </div>
 )}
 
@@ -390,6 +490,7 @@ Total Amount: ₹ ${totalAmount}`;
       company={company}
       client={client}
       services={items}
+      notes={notes}
     />
   </div>
 )}

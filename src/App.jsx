@@ -125,45 +125,30 @@ const totalAmount = items.reduce(
 const generatePDF = async () => {
   const input = document.getElementById("invoice");
 
-  // make high quality canvas
   const canvas = await html2canvas(input, {
-  scale: window.devicePixelRatio > 1 ? 2 : 3,
-  useCORS: true,
-  scrollX: 0,
-  scrollY: -window.scrollY,
-  windowWidth: input.scrollWidth,
-});
+    scale: 2,
+    useCORS: true
+  });
 
   const imgData = canvas.toDataURL("image/png");
 
   const pdf = new jsPDF("p", "mm", "a4");
 
-  const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfHeight = pdf.internal.pageSize.getHeight();
+  const pdfWidth = 210;   // A4 width in mm
+  const pdfHeight = 297;  // A4 height in mm
 
-  const margin = 0;
-const imgWidth = pdfWidth - margin * 2;
+  const imgWidth = pdfWidth;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  let position = 0;
+  // KEY LOGIC — FIT IMAGE INSIDE ONE PAGE
+  const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+  const finalWidth = imgWidth * ratio;
+  const finalHeight = imgHeight * ratio;
 
-  // If invoice height is bigger than A4 → auto multiple pages
-  if (imgHeight > pdfHeight) {
-    let heightLeft = imgHeight;
+  const x = (pdfWidth - finalWidth) / 2;
+  const y = 0;
 
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pdfHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", margin, 0, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-    }
-  } else {
-    pdf.addImage(imgData, "PNG", margin, 0, imgWidth, imgHeight);
-  }
-
+  pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
   pdf.save(`Invoice_${client.clientName || "Client"}.pdf`);
 };
 

@@ -53,6 +53,15 @@ const numberToWords = (num) => {
   return result.trim();
 };
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  const day = String(date.getDate()).padStart(2,"0");
+  const month = String(date.getMonth()+1).padStart(2,"0");
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+
 const InvoicePreview = ({ company, client, services, notes }) => {
 
   // TOTAL QTY
@@ -166,7 +175,7 @@ const InvoicePreview = ({ company, client, services, notes }) => {
 <br />
 {notes.workOrder}
 <br />
-Dated: {notes.workDate}
+Dated: {formatDate(notes.workDate)}
         </td>
 
         {/* QTY */}
@@ -221,25 +230,28 @@ Dated: {notes.workDate}
       {/* AMOUNT WORDS */}
       <p className="mt-4"><b>Amount in Words: {totalWords}</b></p>
 
-      {/* BANK DETAILS */}
-      <div className="mt-6">
-        <p>Bank Details:</p>
-        <b>
-          <p>Bank: HDFC Bank</p>
-          <p>Account Name: {company.companyName}</p>
-          <p>Account No: XXXXXXXXX</p>
-          <p>IFSC: HDFC000XXXX</p>
-        </b>
-      </div>
+{/* BANK + SIGNATURE ROW */}
+<div className="mt-10 flex justify-between items-end">
 
-      {/* SIGNATURE */}
-      <div style={{ textAlign: 'right' }}>
-        <div style={{ display: 'inline-block', textAlign: 'center' }}>
-          <p><b>For {company.proprietor}</b></p>
-          <br/><br/><br/>
-          <p><b>Proprietor</b></p>
-        </div>
-      </div>
+  {/* LEFT — BANK DETAILS */}
+  <div>
+    <p className="font-semibold">Bank Details:</p>
+    <div className="font-bold text-sm mt-2 leading-6">
+      <p>Bank: HDFC Bank</p>
+      <p>Account Name: {company.companyName}</p>
+      <p>Account No: XXXXXXXXX</p>
+      <p>IFSC: HDFC000XXXX</p>
+    </div>
+  </div>
+
+  {/* RIGHT — SIGNATURE */}
+  <div className="text-center">
+    <p className="font-bold">For {company.proprietor}</p>
+    <div className="h-16"></div> {/* space for signature */}
+    <p className="font-bold">Proprietor</p>
+  </div>
+
+</div>
 
     </div>
   );

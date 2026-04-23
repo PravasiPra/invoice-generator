@@ -115,8 +115,8 @@ const InvoicePreview = ({ company, client, services, notes }) => {
 
       {/* QUOTE + DATE */}
       <div className="flex justify-between mt-6 text-sm">
-        <p><b>Invoice Number: {client.quoteNo}</b></p>
-        <p><b>Date: {client.date}</b></p>
+        <p><b>{client.docType}: {client.quoteNo}</b></p>
+        <p><b>Date: {formatDate(client.date)}</b></p>
       </div>
       
       {/* CLIENT */}
@@ -132,7 +132,7 @@ const InvoicePreview = ({ company, client, services, notes }) => {
 
       {/* TITLE */}
       <h2 className="font-bold mt-6 underline">
-        INVOICE FOR LIFT CONSULTANCY CHARGES - FOR {client.projectTitle}
+        {client.projectTitle} {client.projectName}
       </h2>
 
       {/* TABLE */}

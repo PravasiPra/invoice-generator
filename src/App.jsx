@@ -19,11 +19,13 @@ function App() {
 
   // Client Details
   const [client, setClient] = useState({
+    docType: "Invoice Number",
   quoteNo: "MAR/25-26/11",
-  date: new Date().toLocaleDateString(),
+  date: new Date().toISOString().split("T")[0],
   clientName: "",
   clientAddress: "",
-  projectTitle: ""
+  projectTitle: "INVOICE FOR LIFT CONSULTANCY CHARGES - FOR",
+  projectName: ""
 });
 
   // Services list added to invoice
@@ -279,15 +281,24 @@ Total Amount: ₹ ${totalAmount}`;
   <input
     type="date"
     className="w-full border p-2 rounded"
-    value={new Date().toISOString().split("T")[0]}
+    value={client.date}
     onChange={(e) =>
       setClient({ ...client, date: e.target.value })
     }
   />
 
+  <select
+  className="w-full border p-2 mb-2 rounded"
+  value={client.docType}
+  onChange={(e)=>setClient({...client, docType:e.target.value})}
+>
+  <option>Invoice Number</option>
+  <option>Quote Number</option>
+</select>
+
 <input
   className="w-full border p-2 mb-2 rounded"
-  placeholder="Quote Number"
+  placeholder={client.docType}
   value={client.quoteNo}
   onChange={(e)=>setClient({...client,quoteNo:e.target.value})}
 />
@@ -317,6 +328,13 @@ Total Amount: ₹ ${totalAmount}`;
   placeholder="Project Title"
   value={client.projectTitle}
   onChange={(e)=>setClient({...client,projectTitle:e.target.value})}
+/>
+
+<input
+  className="w-full border p-2 rounded"
+  placeholder="Project Name"
+  value={client.projectName}
+  onChange={(e)=>setClient({...client,projectName:e.target.value})}
 />
 
 </div>
